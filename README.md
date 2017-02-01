@@ -17,7 +17,7 @@ installation instructions:
     
 Setup:
 
-go to your google developer dashboard https://discordapp.com/developers/applications
+go to your google developer dashboard https://console.developers.google.com/apis/dashboard
 Then go to library then find the youtube data api v3 and enable it
 
 Next step is go to the credentials page
