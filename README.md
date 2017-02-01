@@ -9,7 +9,9 @@ Requiremnents
     google-api-python-client
     
 installation instructions:
+
     python3.5 -m pip install -U discord.py
+    
     python3.5 -m pip install --upgrade google-api-python-client
 
     
