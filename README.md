@@ -14,7 +14,6 @@ installation instructions:
     
     python3.5 -m pip install --upgrade google-api-python-client
 
-    as
     
 Setup:
 
