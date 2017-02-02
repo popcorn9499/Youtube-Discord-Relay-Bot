@@ -190,8 +190,8 @@ async def youtubeChatImport(): #this is used to pull the from youtube to discord
 @client.event
 async def on_message(message): #waits for the discord message event and pulls it somewhere
     if firstRun == "off":
-        print(config["discordToYoutubeFormating"].format(message.author,message.content)) #prints this to the screen
-
+        if str(channelToUse.name) == str(message.channel):
+            print(config["discordToYoutubeFormating"].format(message.author,message.content)) #prints this to the screen
 
 ##file load and save stuff
 
