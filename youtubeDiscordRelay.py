@@ -48,11 +48,10 @@ firstRun = "off"
 #used as global varibles and were defined before we start using them to avoid problems down the road
 channelToUse = ""
 
-
 # The CLIENT_SECRETS_FILE variable specifies the name of a file that contains
 # the OAuth 2.0 information for this application, including its client_id and
 # client_secret. You can acquire an OAuth 2.0 client ID and client secret from
-# the {{ Google Clou  pageToken = list_chatmessages["nextPageToken"] #page token for next used Console }} at
+# the {{ Google Cloud Console }} at
 # {{ https://cloud.google.com/console }}.
 # Please ensure that you have enabled the YouTube Data API for your project.
 # For more information about using OAuth2 to access the YouTube Data API, see:
@@ -61,10 +60,9 @@ channelToUse = ""
 #   https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
 CLIENT_SECRETS_FILE = "client_secrets.json"
 
-# This OAuth 2.0 access scope allows for read-only access to the authenticated
-# user's account, but not other types of account access.
-YOUTUBE_READONLY_SCOPE = "https://www.googleapis.com/auth/youtube"
-#YOUTUBE_READONLY_SCOPE = "https://www.googleapis.com/auth/youtube.readonly"
+# This OAuth 2.0 access scope allows for full read/write access to the
+# authenticated user's account.
+YOUTUBE_READ_WRITE_SCOPE = "https://www.googleapis.com/auth/youtube"
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
@@ -72,11 +70,15 @@ YOUTUBE_API_VERSION = "v3"
 # missing.
 MISSING_CLIENT_SECRETS_MESSAGE = """
 WARNING: Please configure OAuth 2.0
+
 To make this sample run you will need to populate the client_secrets.json file
 found at:
+
    %s
+
 with information from the {{ Cloud Console }}
 {{ https://cloud.google.com/console }}
+
 For more information about the client_secrets.json file format, please visit:
 https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
 """ % os.path.abspath(os.path.join(os.path.dirname(__file__),
@@ -84,7 +86,7 @@ https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
 
 def get_authenticated_service(args):
   flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
-    scope=YOUTUBE_READONLY_SCOPE,
+    scope=YOUTUBE_READ_WRITE_SCOPE,
     message=MISSING_CLIENT_SECRETS_MESSAGE)
 
   storage = Storage("%s-oauth2.json" % sys.argv[0])
@@ -93,9 +95,11 @@ def get_authenticated_service(args):
   if credentials is None or credentials.invalid:
     credentials = run_flow(flow, storage, args)
 
-
   return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
     http=credentials.authorize(httplib2.Http()))
+
+# Retrieve a list of the liveStream resources associated with the currently
+# authenticated user's channel.
 
 # Retrieve a list of the liveStream resources associated with the currently
 # authenticated user's channel.
