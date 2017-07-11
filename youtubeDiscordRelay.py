@@ -168,7 +168,7 @@ async def sendLiveChat(msg): #sends messages to youtube live chat
          )
       )
    )  
-
+   list_chatmessages_inset.execute()
    #print(list_chatmessages_inset.execute()) #debug for sending live chat messages
   
 
