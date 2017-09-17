@@ -143,15 +143,17 @@ async def listChat(youtube):
     message = temp["snippet"]["displayMessage"] #gets the display message
     username = temp["authorDetails"]["displayName"] #gets the users name
     userID = temp["authorDetails"]["channelId"]
-    if message != "" and username != "": #this makes sure that the message and username slot arent empty before putting this to the discord chat        
-        if userID != botUserID:
-            print(config["youtubeToDiscordFormatting"].format(username,message))
-            msg = (config["youtubeToDiscordFormatting"].format(username,message))
-            await client.send_message(channelToUse, msg)
-        elif userID == botUserID: #if the userId is the bots then check the message to see if the bot sent it.
-            msgCheckComplete = msgCheckRegex.search(message) #checks the message against the previously created regex for ":"
-            if msgCheckComplete == ":": #if its this then go and send the message as normal
+     if message != "" and username != "": #this makes sure that the message and username slot arent empty before putting this to the discord chat        
+            print(temp)
+            fileSave("youtubeMsgJson.json", temp)
+            if userID != botUserID:
                 print(config["youtubeToDiscordFormatting"].format(username,message))
+                msg = (config["youtubeToDiscordFormatting"].format(username,message))
+                await client.send_message(channelToUse, msg)
+            elif userID == botUserID: #if the userId is the bots then check the message to see if the bot sent it.
+                msgCheckComplete = msgCheckRegex.search(message) #checks the message against the previously created regex for ":"
+                if msgCheckComplete != ":": #if its this then go and send the message as normal
+                    print(config["youtubeToDiscordFormatting"].format(username,message))
                 msg = (config["youtubeToDiscordFormatting"].format(username,message))
                 await client.send_message(channelToUse, msg)
         
