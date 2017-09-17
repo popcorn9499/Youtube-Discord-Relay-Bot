@@ -233,9 +233,9 @@ async def on_message(message): #waits for the discord message event and pulls it
     global config
     global channelToUse #pulls in the global variable
     if firstRun == "off":
-        if str(channelToUse.name) == str(message.channel) and str(message.author) != botName:
+        if str(channelToUse.name) == str(message.channel) and str(message.author.name) != botName:
             print(config["discordToYoutubeFormating"].format(message.author,message.content)) #prints this to the screen
-            await sendLiveChat(config["discordToYoutubeFormating"].format(message.author,message.content)) #prints this to the screen
+            await sendLiveChat(config["discordToYoutubeFormating"].format(message.author.name,message.content)) #prints this to the screen
 
 
 ##file load and save stuff
