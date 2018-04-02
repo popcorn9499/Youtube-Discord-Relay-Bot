@@ -36,7 +36,8 @@ import asyncio
 
 #!/usr/bin/python
 
-
+discordToYouTube = True #put this into config later
+youtubeToDiscord = True #put this into config later
 
 
 ####variables
@@ -143,7 +144,7 @@ async def listChat(youtube):
     message = temp["snippet"]["displayMessage"] #gets the display message
     username = temp["authorDetails"]["displayName"] #gets the users name
     userID = temp["authorDetails"]["channelId"]
-    if message != "" and username != "": #this makes sure that the message and username slot arent empty before putting this to the discord chat        
+    if message != "" and username != "" and youtubeToDiscord == True: #this makes sure that the message and username slot arent empty before putting this to the discord chat
             print(temp)
             fileSave("youtubeMsgJson.json", temp)
             if userID != botUserID:
@@ -206,7 +207,7 @@ async def on_ready(): #when the discord api has logged in and is ready then this
         #this is just to show what the name of the bot is and the id
         print('Logged in as') ##these things could be changed a little bit here
         print(client.user.name+ "#" + client.user.discriminator)
-        botName = client.user.name+ "#" + client.user.discriminator #gets and saves the bots name and discord tag
+        botName = client.user.name + "#" + client.user.discriminator #gets and saves the bots name and discord tag
         print(client.user.id)
         for server in client.servers: #this sifts through all the bots servers and gets the channel we want
             #should probly add a check in for the server in here im guessing
@@ -224,7 +225,7 @@ async def youtubeChatImport(): #this is used to pull the from youtube to discord
         i += 1
         await listChat(youtube) #checks the youtube chat
         if i == 8:
-            fileSave(config)
+            fileSave("config.json", config)
             i = 0
         await asyncio.sleep(5) #this works
 
@@ -233,16 +234,16 @@ async def on_message(message): #waits for the discord message event and pulls it
     global config
     global channelToUse #pulls in the global variable
     if firstRun == "off":
-        if str(channelToUse.name) == str(message.channel) and str(message.author.name) != botName:
+        if str(channelToUse.name) == str(message.channel) and str(message.author.name) != botName and str(message.author.name) != client.user.name and str(message.author.name) != client.user.discriminator and discordToYouTube == True:
             print(config["discordToYoutubeFormating"].format(message.author,message.content)) #prints this to the screen
             await sendLiveChat(config["discordToYoutubeFormating"].format(message.author.name,message.content)) #prints this to the screen
 
 
 ##file load and save stuff
 
-def fileSave(config):
+def fileSave(filename, config):
     print("Saving")
-    f = open("config.json", 'w') #opens the file your saving to with write permissions
+    f = open(filename, 'w') #opens the file your saving to with write permissions
     f.write(json.dumps(config) + "\n") #writes the string to a file
     f.close() #closes the file io
 
@@ -304,7 +305,7 @@ Ex. "{0} : {1}: """)
 {1} is the placeholder for the message
 Ex. "{0} : {1}": """)
     print("Configuration complete")
-    fileSave(config) #saves the file
+    fileSave("config.json", config) #saves the file
     print("Please run the command normally to run the bot")
     await client.close()
 
