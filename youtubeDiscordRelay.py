@@ -109,7 +109,7 @@ def get_authenticated_service(args):
 
 def getLiveId(youtube): #this gets the live chat id
   global liveChatId,botUserID #pulls in the bots livechatid and botuserid for further saving and modifying
-  
+
   list_streams_request = youtube.liveBroadcasts().list( #checks for the live chat id through this
     part="snippet", #this is what we look through to get the live chat id
     broadcastStatus="all", #we need both of these to get the live chat id
@@ -118,9 +118,9 @@ def getLiveId(youtube): #this gets the live chat id
   liveChatId = list_streams_request["items"][0]["snippet"]["liveChatId"]#sifts through the output to get the live chat id and saves it
   botUserID = list_streams_request["items"][1]["snippet"]["channelId"] #saves the bots channel user id that we will use as a identifier
   print("liveID {0}".format(liveChatId)) #print the live chat id
-  
- 
-  
+
+
+
 
 async def listChat(youtube):
   global pageToken #pulls in the page token
@@ -135,15 +135,15 @@ async def listChat(youtube):
   ).execute() #executes it so its not just some object
 
   config["pageToken"] = list_chatmessages["nextPageToken"] #page token for next use
-   
+
   #print(list_chatmessages)
-  
+
   msgCheckRegex = re.compile(r'[*:]') #setup for if we happen to need this it should never change either way
   for temp in list_chatmessages["items"]: #goes through all the stuff in the list messages list
     message = temp["snippet"]["displayMessage"] #gets the display message
     username = temp["authorDetails"]["displayName"] #gets the users name
     userID = temp["authorDetails"]["channelId"]
-     if message != "" and username != "": #this makes sure that the message and username slot arent empty before putting this to the discord chat        
+    if message != "" and username != "": #this makes sure that the message and username slot arent empty before putting this to the discord chat        
             print(temp)
             fileSave("youtubeMsgJson.json", temp)
             if userID != botUserID:
@@ -156,7 +156,7 @@ async def listChat(youtube):
                     print(config["youtubeToDiscordFormatting"].format(username,message))
                 msg = (config["youtubeToDiscordFormatting"].format(username,message))
                 await client.send_message(channelToUse, msg)
-        
+
 async def sendLiveChat(msg): #sends messages to youtube live chat
    list_chatmessages_inset = youtube.liveChatMessages().insert(
      part = "snippet",
@@ -169,18 +169,18 @@ async def sendLiveChat(msg): #sends messages to youtube live chat
            )
          )
       )
-   )  
+   )
    list_chatmessages_inset.execute()
    #print(list_chatmessages_inset.execute()) #debug for sending live chat messages
-  
+
 
 
 if __name__ == "__main__":
     args = argparser.parse_args()
-        
+
     youtube = get_authenticated_service(args) #authenticates the api and saves it to youtube
     getLiveId(youtube)
-    
+
 
 
 ##discord portion of the bot
@@ -193,7 +193,7 @@ async def discordSendMsg(msg): #this is for sending messages to discord
     global config
     global channelToUse #pulls in t{0} : {1}".format(author,msg)he global variable
     await client.send_message(channelToUse, msg) #sends the message to the channel specified in the beginning
-    
+
 
 
 @client.event
@@ -213,11 +213,11 @@ async def on_ready(): #when the discord api has logged in and is ready then this
             for channel in server.channels:
                 if channel.name == config["channelName"] and str(channel.type) == "text": #checks if the channel name is what we want and that its a text channel
                     channelToUse = channel #saves the channel that we wanna use since we found it
-        
+
         await youtubeChatImport() #runs the youtube chat import code
     else:
         await getFirstRunInfo()
-                
+
 async def youtubeChatImport(): #this is used to pull the from youtube to discord
     i = 0
     while True:
@@ -227,7 +227,7 @@ async def youtubeChatImport(): #this is used to pull the from youtube to discord
             fileSave(config)
             i = 0
         await asyncio.sleep(5) #this works
-            
+
 @client.event
 async def on_message(message): #waits for the discord message event and pulls it somewhere
     global config
@@ -248,8 +248,8 @@ def fileSave(config):
 
 
 def fileLoad():
-    f = open("config.json", 'r') #opens the file your saving to with read permissions 
-    config = "" 
+    f = open("config.json", 'r') #opens the file your saving to with read permissions
+    config = ""
     for line in f: #gets the information from the file
         config = json.loads(line) #this will unserialize the table
     return config
@@ -258,7 +258,7 @@ def fileLoad():
 ##first run stuff
 
 
-def getToken(): #gets the token 
+def getToken(): #gets the token
     global config
     realToken = "false" #this is just for the while loop
     while realToken == "false":
@@ -275,14 +275,14 @@ def getToken(): #gets the token
 async def getFirstRunInfo():
     global config
     print('Logged in as') ##these things could be changed a little bit here
-    print(client.user.name) 
+    print(client.user.name)
     print(client.user.id)
     while config["serverName"] == "":
         for server in client.servers: #this sifts through all the bots servers and gets the channel we want
             print(server.name)
             if input("If this is the server you want type yes if not hit enter: ") == "yes":
                 config["serverName"] = server.name
-                break    
+                break
     while config["channelName"] == "":
         for server in client.servers: #this sifts through all the bots servers and gets the channel we want
             #should probly add a check in for the server in here im guessing
@@ -294,12 +294,12 @@ async def getFirstRunInfo():
                         config["channelName"] = channel.name
                         break
     while config["youtubeToDiscordFormatting"] == "": #fills the youtube to discord formating
-        config["youtubeToDiscordFormatting"] = input("""Please enter the chat formatting for chat coming from youtube to go to discord. 
+        config["youtubeToDiscordFormatting"] = input("""Please enter the chat formatting for chat coming from youtube to go to discord.
 {0} is the placeholder for the username
 {1} is the placeholder for the message
 Ex. "{0} : {1}: """)
     while config["discordToYoutubeFormating"] == "": #fills the discord to youtube formating
-        config["discordToYoutubeFormating"] = input("""Please enter the chat formatting for chat coming from discord to go to youtube. 
+        config["discordToYoutubeFormating"] = input("""Please enter the chat formatting for chat coming from discord to go to youtube.
 {0} is the placeholder for the username
 {1} is the placeholder for the message
 Ex. "{0} : {1}": """)
@@ -307,7 +307,7 @@ Ex. "{0} : {1}": """)
     fileSave(config) #saves the file
     print("Please run the command normally to run the bot")
     await client.close()
-            
+
 if os.path.isfile("config.json") == False:#checks if the file exists and if it doesnt then we go to creating it
     print("Config missing. This may mean this is your first time setting this up")
     firstRun = "on"
@@ -323,10 +323,3 @@ if firstRun == "on":
 
 
 client.run(config["discordToken"])#starts the discord bot
-
-
-
-
-
-
-
