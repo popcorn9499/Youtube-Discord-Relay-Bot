@@ -36,12 +36,11 @@ import asyncio
 
 #!/usr/bin/python
 
-discordToYouTube = True #put this into config later
-youtubeToDiscord = True #put this into config later
+
 
 
 ####variables
-config = {"channelName": "", "pageToken": "", "serverName": "", "discordToken": "","discordToYoutubeFormating": "", "youtubeToDiscordFormatting":""}
+config = {"channelName": "", "pageToken": "", "serverName": "", "discordToken": "","discordToYoutubeFormating": "", "youtubeToDiscordFormatting":"","discordToYoutube":True,"youtubeToDiscord":True}
 
 botName = "none"
 
@@ -144,7 +143,7 @@ async def listChat(youtube):
     message = temp["snippet"]["displayMessage"] #gets the display message
     username = temp["authorDetails"]["displayName"] #gets the users name
     userID = temp["authorDetails"]["channelId"]
-    if message != "" and username != "" and youtubeToDiscord == True: #this makes sure that the message and username slot arent empty before putting this to the discord chat
+    if message != "" and username != "" and config["youtubeToDiscord"] == True: #this makes sure that the message and username slot arent empty before putting this to the discord chat
         print(temp)
         fileSave("youtubeMsgJson.json", temp)
         if userID != botUserID:
@@ -242,7 +241,7 @@ async def on_message(message): #waits for the discord message event and pulls it
     global config
     global channelToUse #pulls in the global variable
     if firstRun == "off":
-        if str(channelToUse.name) == str(message.channel) and str(message.author.name) != botName and str(message.author.name) != client.user.name and str(message.author.name) != client.user.discriminator and discordToYouTube == True:
+        if str(channelToUse.name) == str(message.channel) and str(message.author.name) != botName and str(message.author.name) != client.user.name and str(message.author.name) != client.user.discriminator and config["discordToYoutube"] == True:
             print(config["discordToYoutubeFormating"].format(message.author,message.content)) #prints this to the screen
             await sendLiveChat(config["discordToYoutubeFormating"].format(message.author.name,message.content)) #prints this to the screen
 
