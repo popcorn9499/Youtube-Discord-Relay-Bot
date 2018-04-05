@@ -139,24 +139,32 @@ async def listChat(youtube):
 
   #print(list_chatmessages)
 
-  msgCheckRegex = re.compile(r'[*:]') #setup for if we happen to need this it should never change either way
+  msgCheckRegex = re.compile(r'(:)') #setup for if we happen to need this it should never change either way
   for temp in list_chatmessages["items"]: #goes through all the stuff in the list messages list
     message = temp["snippet"]["displayMessage"] #gets the display message
     username = temp["authorDetails"]["displayName"] #gets the users name
     userID = temp["authorDetails"]["channelId"]
     if message != "" and username != "" and youtubeToDiscord == True: #this makes sure that the message and username slot arent empty before putting this to the discord chat
-            print(temp)
-            fileSave("youtubeMsgJson.json", temp)
-            if userID != botUserID:
+        print(temp)
+        fileSave("youtubeMsgJson.json", temp)
+        if userID != botUserID:
+          print(config["youtubeToDiscordFormatting"].format(username,message))
+          msg = (config["youtubeToDiscordFormatting"].format(username,message))
+          await client.send_message(channelToUse, msg)
+        elif userID == botUserID: #if the userId is the bots then check the message to see if the bot sent it.
+            try:
+              msgCheckComplete = msgCheckRegex.search(message) #checks the message against the previously created regex for ":"
+              if msgCheckComplete.group(1) != ":": #if its this then go and send the message as normal
                 print(config["youtubeToDiscordFormatting"].format(username,message))
                 msg = (config["youtubeToDiscordFormatting"].format(username,message))
+                print("sending")
+                print(botUserID)
                 await client.send_message(channelToUse, msg)
-            elif userID == botUserID: #if the userId is the bots then check the message to see if the bot sent it.
-                msgCheckComplete = msgCheckRegex.search(message) #checks the message against the previously created regex for ":"
-                if msgCheckComplete != ":": #if its this then go and send the message as normal
-                    print(config["youtubeToDiscordFormatting"].format(username,message))
-                msg = (config["youtubeToDiscordFormatting"].format(username,message))
-                await client.send_message(channelToUse, msg)
+            except AttributeError as error:
+              msg = (config["youtubeToDiscordFormatting"].format(username,message))
+              print("sending")
+              print(botUserID)
+              await client.send_message(channelToUse, msg)
 
 async def sendLiveChat(msg): #sends messages to youtube live chat
    list_chatmessages_inset = youtube.liveChatMessages().insert(
