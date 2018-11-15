@@ -342,9 +342,22 @@ if firstRun == "on":
     config = {"channelName": "", "pageToken": "", "serverName": "", "discordToken": "","discordToYoutubeFormating": "", "youtubeToDiscordFormatting":""}
     getToken()
 
+def discordStart(token):
+  while True:
+    loop = asyncio.get_event_loop()
+    try:
+        loop.run_until_complete(client.start(token))
+    except (discord.ConnectionClosed, discord.GatewayNotFound) as error:
+        loop.run_until_complete(client.logout())
+        loop.close()
+        discordStart(token)
+        print("Client Connection Lost")
+        # cancel all tasks lingering
+    except KeyboardInterrupt:
+        loop.run_until_complete(client.logout())
+    finally:
+        print("Client Closed")
+        loop.close()
+    print("Reconnecting")
 
-
-
-
-
-client.run(config["discordToken"])#starts the discord bot
+discordStart(config["discordToken"])
