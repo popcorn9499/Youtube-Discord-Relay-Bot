@@ -127,43 +127,52 @@ async def listChat(youtube):
   global liveChatId #pulls in the liveChatID
   global botUserID #pulls in the bots channel ID
   global config
-  list_chatmessages = youtube.liveChatMessages().list( #lists the chat messages
-    part="id,snippet,authorDetails", #gets the author details needed and the snippet all of which giving me the message and username
-    liveChatId=liveChatId,
-    maxResults=500,
-    pageToken=config["pageToken"] #gives the previous token so it loads a new section of the chat
-  ).execute() #executes it so its not just some object
+  try:
+    continuation = True
+    try:
+      list_chatmessages = youtube.liveChatMessages().list( #lists the chat messages
+        part="id,snippet,authorDetails", #gets the author details needed and the snippet all of which giving me the message and username
+        liveChatId=liveChatId,
+        maxResults=500,
+        pageToken=config["pageToken"] #gives the previous token so it loads a new section of the chat
+      ).execute() #executes it so its not just some object
 
-  config["pageToken"] = list_chatmessages["nextPageToken"] #page token for next use
+      config["pageToken"] = list_chatmessages["nextPageToken"] #page token for next use
+    except googleapiclient.errors.HttpError:
+      continuation = False 
+    #print(list_chatmessages)
 
-  #print(list_chatmessages)
-
-  msgCheckRegex = re.compile(r'(:)') #setup for if we happen to need this it should never change either way
-  for temp in list_chatmessages["items"]: #goes through all the stuff in the list messages list
-    message = temp["snippet"]["displayMessage"] #gets the display message
-    username = temp["authorDetails"]["displayName"] #gets the users name
-    userID = temp["authorDetails"]["channelId"]
-    if message != "" and username != "" and config["youtubeToDiscord"] == True: #this makes sure that the message and username slot arent empty before putting this to the discord chat
-        print(temp)
-        fileSave("youtubeMsgJson.json", temp)
-        if userID != botUserID:
-          print(config["youtubeToDiscordFormatting"].format(username,message))
-          msg = (config["youtubeToDiscordFormatting"].format(username,message))
-          await client.send_message(channelToUse, msg)
-        elif userID == botUserID: #if the userId is the bots then check the message to see if the bot sent it.
-            try:
-              msgCheckComplete = msgCheckRegex.search(message) #checks the message against the previously created regex for ":"
-              if msgCheckComplete.group(1) != ":": #if its this then go and send the message as normal
-                print(config["youtubeToDiscordFormatting"].format(username,message))
-                msg = (config["youtubeToDiscordFormatting"].format(username,message))
-                print("sending")
-                print(botUserID)
-                await client.send_message(channelToUse, msg)
-            except AttributeError as error:
+    if continuation == True:
+      msgCheckRegex = re.compile(r'(:)') #setup for if we happen to need this it should never change either way
+      for temp in list_chatmessages["items"]: #goes through all the stuff in the list messages list
+        message = temp["snippet"]["displayMessage"] #gets the display message
+        username = temp["authorDetails"]["displayName"] #gets the users name
+        userID = temp["authorDetails"]["channelId"]
+        if message != "" and username != "" and config["youtubeToDiscord"] == True: #this makes sure that the message and username slot arent empty before putting this to the discord chat
+            print(temp)
+            fileSave("youtubeMsgJson.json", temp)
+            if userID != botUserID:
+              print(config["youtubeToDiscordFormatting"].format(username,message))
               msg = (config["youtubeToDiscordFormatting"].format(username,message))
-              print("sending")
-              print(botUserID)
               await client.send_message(channelToUse, msg)
+            elif userID == botUserID: #if the userId is the bots then check the message to see if the bot sent it.
+                try:
+                  msgCheckComplete = msgCheckRegex.search(message) #checks the message against the previously created regex for ":"
+                  if msgCheckComplete.group(1) != ":": #if its this then go and send the message as normal
+                    print(config["youtubeToDiscordFormatting"].format(username,message))
+                    msg = (config["youtubeToDiscordFormatting"].format(username,message))
+                    print("sending")
+                    print(botUserID)
+                    await client.send_message(channelToUse, msg)
+                except AttributeError as error:
+                  msg = (config["youtubeToDiscordFormatting"].format(username,message))
+                  print("sending")
+                  print(botUserID)
+                  await client.send_message(channelToUse, msg)
+  except  ConnectionResetError:
+    login()
+
+    print("Youtube Connection Error... Reconnecting")
 
 async def sendLiveChat(msg): #sends messages to youtube live chat
    list_chatmessages_inset = youtube.liveChatMessages().insert(
@@ -181,13 +190,18 @@ async def sendLiveChat(msg): #sends messages to youtube live chat
    list_chatmessages_inset.execute()
    #print(list_chatmessages_inset.execute()) #debug for sending live chat messages
 
-
+def login():
+  global youtube
+  args = argparser.parse_args()
+  youtube = get_authenticated_service(args) #authenticates the api and saves it to youtube
+  getLiveId(youtube)
 
 if __name__ == "__main__":
-    args = argparser.parse_args()
+    login()
+    #args = argparser.parse_args()
 
-    youtube = get_authenticated_service(args) #authenticates the api and saves it to youtube
-    getLiveId(youtube)
+    #youtube = get_authenticated_service(args) #authenticates the api and saves it to youtube
+    #getLiveId(youtube)
 
 
 
