@@ -230,7 +230,10 @@ async def youtubeChatImport(): #this is used to pull the from youtube to discord
     i = 0
     while True:
         i += 1
-        await listChat(youtube) #checks the youtube chat
+        try:
+          await listChat(youtube) #checks the youtube chat
+        except:
+          pass
         if i == 8:
             fileSave("config.json", config)
             i = 0
