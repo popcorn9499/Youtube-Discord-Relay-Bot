@@ -339,7 +339,7 @@ if os.path.isfile("config.json") == False:#checks if the file exists and if it d
 else:
     config = fileLoad() #if it exists try to load it
 if firstRun == "on":
-    config = {"channelName": "", "pageToken": "", "serverName": "", "discordToken": "","discordToYoutubeFormating": "", "youtubeToDiscordFormatting":""}
+    config = {"channelName": "", "pageToken": "", "serverName": "", "discordToken": "","discordToYoutubeFormating": "", "youtubeToDiscordFormatting":"","youtubeToDiscord": True, "discordToYoutube": True}
     getToken()
 
 def discordStart(token):
