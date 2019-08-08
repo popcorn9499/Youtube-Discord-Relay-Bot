@@ -154,7 +154,7 @@ async def listChat(youtube):
             if userID != botUserID:
               print(config["youtubeToDiscordFormatting"].format(username,message))
               msg = (config["youtubeToDiscordFormatting"].format(username,message))
-              await client.send_message(channelToUse, msg)
+              await channelToUse.send(msg)
             elif userID == botUserID: #if the userId is the bots then check the message to see if the bot sent it.
                 try:
                   msgCheckComplete = msgCheckRegex.search(message) #checks the message against the previously created regex for ":"
@@ -163,12 +163,12 @@ async def listChat(youtube):
                     msg = (config["youtubeToDiscordFormatting"].format(username,message))
                     print("sending")
                     print(botUserID)
-                    await client.send_message(channelToUse, msg)
+                    await channelToUse.send(msg)
                 except AttributeError as error:
                   msg = (config["youtubeToDiscordFormatting"].format(username,message))
                   print("sending")
                   print(botUserID)
-                  await client.send_message(channelToUse, msg)
+                  await channelToUse.send(msg)
   except  ConnectionResetError:
     login()
 
@@ -214,7 +214,7 @@ client = discord.Client() #sets this to just client for reasons cuz y not? (didn
 async def discordSendMsg(msg): #this is for sending messages to discord
     global config
     global channelToUse #pulls in t{0} : {1}".format(author,msg)he global variable
-    await client.send_message(channelToUse, msg) #sends the message to the channel specified in the beginning
+    await channelToUse.send(msg) #sends the message to the channel specified in the beginning
 
 
 
@@ -230,9 +230,9 @@ async def on_ready(): #when the discord api has logged in and is ready then this
         print(client.user.name+ "#" + client.user.discriminator)
         botName = client.user.name + "#" + client.user.discriminator #gets and saves the bots name and discord tag
         print(client.user.id)
-        for server in client.servers: #this sifts through all the bots servers and gets the channel we want
+        for guild in client.guilds: #this sifts through all the bots servers and gets the channel we want
             #should probly add a check in for the server in here im guessing
-            for channel in server.channels:
+            for channel in guild.channels:
                 if channel.name == config["channelName"] and str(channel.type) == "text": #checks if the channel name is what we want and that its a text channel
                     channelToUse = channel #saves the channel that we wanna use since we found it
 
@@ -260,7 +260,7 @@ async def on_message(message): #waits for the discord message event and pulls it
     if firstRun == "off":
         if str(channelToUse.name) == str(message.channel) and str(message.author.name) != botName and str(message.author.name) != client.user.name and str(message.author.name) != client.user.discriminator and config["discordToYoutube"] == True:
             print(config["discordToYoutubeFormating"].format(message.author,message.content)) #prints this to the screen
-            await sendLiveChat(config["discordToYoutubeFormating"].format(message.author.name,message.content)) #prints this to the screen
+            await sendLiveChat(config["discordToYoutubeFormating"].format(message.author.display_name,message.content)) #prints this to the screen
 
 
 ##file load and save stuff
@@ -303,16 +303,16 @@ async def getFirstRunInfo():
     print(client.user.name)
     print(client.user.id)
     while config["serverName"] == "":
-        for server in client.servers: #this sifts through all the bots servers and gets the channel we want
-            print(server.name)
+        for guild in client.guilds: #this sifts through all the bots servers and gets the channel we want
+            print(guild.name)
             if input("If this is the server you want type yes if not hit enter: ") == "yes":
-                config["serverName"] = server.name
+                config["serverName"] = guild.name
                 break
     while config["channelName"] == "":
-        for server in client.servers: #this sifts through all the bots servers and gets the channel we want
+        for guild in client.guilds: #this sifts through all the bots servers and gets the channel we want
             #should probly add a check in for the server in here im guessing
             #print(server.name)
-            for channel in server.channels:
+            for channel in guild.channels:
                 if str(channel.type) == "text":
                     print(channel.name)
                     if input("If this is the channel you want type yes if not hit enter: ") == "yes":
